@@ -96,3 +96,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🟠 Bal Ganesh Mitra Mandal backend running on port ${PORT}`);
 });
+export default app;
