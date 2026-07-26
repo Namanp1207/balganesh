@@ -1,0 +1,35 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="94" fill="none" stroke="#F4511E" stroke-width="4"/>
+  <circle cx="100" cy="100" r="84" fill="none" stroke="#F4511E" stroke-width="2"/>
+
+  <!-- Om symbol -->
+  <text x="100" y="42" font-family="serif" font-size="20" fill="#F4511E" text-anchor="middle">ॐ</text>
+
+  <!-- Crown -->
+  <path d="M78 55 Q100 38 122 55 L118 66 Q100 56 82 66 Z" fill="#F4511E"/>
+  <circle cx="100" cy="50" r="5" fill="#F4511E"/>
+
+  <!-- Ears -->
+  <path d="M62 88 Q34 92 40 122 Q46 148 74 138 Q66 112 68 92 Z" fill="none" stroke="#F4511E" stroke-width="3.5"/>
+  <path d="M138 88 Q166 92 160 122 Q154 148 126 138 Q134 112 132 92 Z" fill="none" stroke="#F4511E" stroke-width="3.5"/>
+
+  <!-- Head -->
+  <path d="M100 62 C122 62 132 80 130 98 C128 112 122 118 122 130 L78 130 C78 118 72 112 70 98 C68 80 78 62 100 62 Z" fill="none" stroke="#F4511E" stroke-width="3.5"/>
+
+  <!-- Eyes -->
+  <circle cx="88" cy="94" r="3" fill="#F4511E"/>
+  <circle cx="112" cy="94" r="3" fill="#F4511E"/>
+
+  <!-- Trunk -->
+  <path d="M100 108 C96 124 90 136 100 150 C108 162 122 158 122 146" fill="none" stroke="#F4511E" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Tusk -->
+  <path d="M108 116 L118 128 L108 132 Z" fill="#F4511E"/>
+
+  <!-- Blessing hand -->
+  <path d="M62 138 L58 118 M66 140 L64 116 M70 140 L70 118 M74 140 L76 122" stroke="#F4511E" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M56 148 Q68 158 82 148" fill="none" stroke="#F4511E" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Shoulders/body -->
+  <path d="M66 150 Q100 172 134 150 L134 168 Q100 186 66 168 Z" fill="none" stroke="#F4511E" stroke-width="3.5"/>
+</svg>
