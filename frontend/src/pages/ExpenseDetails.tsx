@@ -19,7 +19,10 @@ export default function ExpenseDetails() {
       .get("/expenses")
       .then((res) => setExpenses(res.data))
       .catch((err) => {
-        showToast("error", err.response?.data?.error || "Failed to load expenses");
+        showToast(
+          "error",
+          err.response?.data?.error || "Failed to load expenses",
+        );
       })
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -30,7 +33,11 @@ export default function ExpenseDetails() {
   const handleExportPDF = async () => {
     setExporting(true);
     try {
-      const res = await api.get("/expenses/export/pdf", { responseType: "blob" });
+      const params = { generatedAt: new Date().toLocaleString("en-IN") };
+      const res = await api.get("/expenses/export/pdf", {
+        params,
+        responseType: "blob",
+      });
       const blob = new Blob([res.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -52,7 +59,11 @@ export default function ExpenseDetails() {
     <div className="panel">
       <div className="panel-header">
         <h3>All Expenses Details</h3>
-        <button className="btn-export" onClick={handleExportPDF} disabled={exporting}>
+        <button
+          className="btn-export"
+          onClick={handleExportPDF}
+          disabled={exporting}
+        >
           {exporting ? "Generating..." : "⬇ Download PDF"}
         </button>
       </div>
@@ -65,24 +76,26 @@ export default function ExpenseDetails() {
 
       {!loading && expenses.length > 0 && (
         <div className="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Expenses Name</th>
-              <th>Amount</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {expenses.map((e) => (
-              <tr key={e.id}>
-                <td>{e.expense_name}</td>
-                <td>₹{Number(e.amount).toFixed(2)}</td>
-                <td>{new Date(e.expense_date).toLocaleDateString("en-IN")}</td>
+          <table>
+            <thead>
+              <tr>
+                <th>Expenses Name</th>
+                <th>Amount</th>
+                <th>Date</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {expenses.map((e) => (
+                <tr key={e.id}>
+                  <td>{e.expense_name}</td>
+                  <td>₹{Number(e.amount).toFixed(2)}</td>
+                  <td>
+                    {new Date(e.expense_date).toLocaleDateString("en-IN")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

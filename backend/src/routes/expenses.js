@@ -8,7 +8,9 @@ const router = Router();
 // GET /api/expenses -> list all expenses
 router.get("/", requireAuth, async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM expenses ORDER BY created_at DESC");
+    const result = await pool.query(
+      "SELECT * FROM expenses ORDER BY created_at DESC",
+    );
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -27,7 +29,7 @@ router.post("/", requireAuth, async (req, res) => {
   try {
     const result = await pool.query(
       `INSERT INTO expenses (expense_name, amount, expense_date) VALUES ($1,$2,$3) RETURNING *`,
-      [expense_name, amount, date]
+      [expense_name, amount, date],
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -38,8 +40,11 @@ router.post("/", requireAuth, async (req, res) => {
 
 // GET /api/expenses/export/pdf -> export the full expenses list as one PDF
 router.get("/export/pdf", requireAuth, async (req, res) => {
+  const { generatedAt } = req.query;
   try {
-    const result = await pool.query("SELECT * FROM expenses ORDER BY created_at ASC, id ASC");
+    const result = await pool.query(
+      "SELECT * FROM expenses ORDER BY created_at ASC, id ASC",
+    );
 
     const rows = result.rows.map((e) => ({
       expense_name: e.expense_name,
@@ -57,6 +62,7 @@ router.get("/export/pdf", requireAuth, async (req, res) => {
         { key: "expense_date", label: "Date", width: 1 },
       ],
       rows,
+      generatedAt,
     });
   } catch (err) {
     console.error(err);

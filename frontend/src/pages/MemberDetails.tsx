@@ -49,8 +49,14 @@ export default function MemberDetails() {
   const handleExportPDF = async () => {
     setExporting(true);
     try {
-      const params = wing !== "All" ? { wing } : {};
-      const res = await api.get("/members/export/pdf", { params, responseType: "blob" });
+      const params = {
+        ...(wing !== "All" ? { wing } : {}),
+        generatedAt: new Date().toLocaleString("en-IN"),
+      };
+      const res = await api.get("/members/export/pdf", {
+        params,
+        responseType: "blob",
+      });
       const blob = new Blob([res.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -72,7 +78,11 @@ export default function MemberDetails() {
     <div className="panel">
       <div className="panel-header">
         <h3>All Member Details</h3>
-        <button className="btn-export" onClick={handleExportPDF} disabled={exporting}>
+        <button
+          className="btn-export"
+          onClick={handleExportPDF}
+          disabled={exporting}
+        >
           {exporting ? "Generating..." : "⬇ Download PDF"}
         </button>
       </div>
@@ -97,51 +107,55 @@ export default function MemberDetails() {
 
       {!loading && members.length > 0 && (
         <div className="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Surname</th>
-              <th>Phone No.</th>
-              <th>Flat No.</th>
-              <th>Wing</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Payment Mode</th>
-              <th>Receipt</th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.map((m) => (
-              <tr key={m.id}>
-                <td>{m.name}</td>
-                <td>{m.surname}</td>
-                <td>{m.phone}</td>
-                <td>{m.flat_no}</td>
-                <td>{m.wing}</td>
-                <td>{new Date(m.contribution_date).toLocaleDateString("en-IN")}</td>
-                <td>₹{Number(m.amount).toFixed(2)}</td>
-                <td>
-                  <span className={`badge ${m.payment_mode === "Online" ? "badge-online" : "badge-cash"}`}>
-                    {m.payment_mode}
-                  </span>
-                </td>
-                <td>
-                  {m.receipt_no && (
-                    <a
-                      className="download-link"
-                      href={`${baseOrigin}/api/members/receipt/${m.receipt_no}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      View PDF
-                    </a>
-                  )}
-                </td>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Phone No.</th>
+                <th>Flat No.</th>
+                <th>Wing</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Payment Mode</th>
+                <th>Receipt</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {members.map((m) => (
+                <tr key={m.id}>
+                  <td>{m.name}</td>
+                  <td>{m.surname}</td>
+                  <td>{m.phone}</td>
+                  <td>{m.flat_no}</td>
+                  <td>{m.wing}</td>
+                  <td>
+                    {new Date(m.contribution_date).toLocaleDateString("en-IN")}
+                  </td>
+                  <td>₹{Number(m.amount).toFixed(2)}</td>
+                  <td>
+                    <span
+                      className={`badge ${m.payment_mode === "Online" ? "badge-online" : "badge-cash"}`}
+                    >
+                      {m.payment_mode}
+                    </span>
+                  </td>
+                  <td>
+                    {m.receipt_no && (
+                      <a
+                        className="download-link"
+                        href={`${baseOrigin}/api/members/receipt/${m.receipt_no}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        View PDF
+                      </a>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

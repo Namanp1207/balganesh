@@ -2,7 +2,11 @@ import { Router } from "express";
 import fs from "fs";
 import { pool } from "../db.js";
 import { requireAuth } from "../middleware/auth.js";
-import { generateReceiptNo, generateReceiptPDF, receiptFilePath } from "../utils/pdf.js";
+import {
+  generateReceiptNo,
+  generateReceiptPDF,
+  receiptFilePath,
+} from "../utils/pdf.js";
 import { streamTablePDF } from "../utils/tablePdf.js";
 
 const router = Router();
@@ -15,10 +19,12 @@ router.get("/", requireAuth, async (req, res) => {
     if (wing && ["A", "B", "C"].includes(wing)) {
       result = await pool.query(
         "SELECT * FROM members WHERE wing = $1 ORDER BY created_at DESC",
-        [wing]
+        [wing],
       );
     } else {
-      result = await pool.query("SELECT * FROM members ORDER BY created_at DESC");
+      result = await pool.query(
+        "SELECT * FROM members ORDER BY created_at DESC",
+      );
     }
     res.json(result.rows);
   } catch (err) {
@@ -29,28 +35,43 @@ router.get("/", requireAuth, async (req, res) => {
 
 // POST /api/members -> add a new member and generate a downloadable PDF receipt
 router.post("/", requireAuth, async (req, res) => {
-  const { name, surname, phone, flat_no, wing, date, amount, payment_mode } = req.body;
+  const { name, surname, phone, flat_no, wing, date, amount, payment_mode } =
+    req.body;
 
-  if (!name || !surname || !phone || !flat_no || !wing || !date || !amount || !payment_mode) {
+  if (
+    !name ||
+    !surname ||
+    !phone ||
+    !flat_no ||
+    !wing ||
+    !date ||
+    !amount ||
+    !payment_mode
+  ) {
     return res.status(400).json({ error: "All fields are required" });
   }
   if (!["A", "B", "C"].includes(wing)) {
     return res.status(400).json({ error: "Wing must be A, B or C" });
   }
   if (!["Cash", "Online"].includes(payment_mode)) {
-    return res.status(400).json({ error: "Payment mode must be Cash or Online" });
+    return res
+      .status(400)
+      .json({ error: "Payment mode must be Cash or Online" });
   }
 
   try {
     const insertResult = await pool.query(
       `INSERT INTO members (name, surname, phone, flat_no, wing, contribution_date, amount, payment_mode)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-      [name, surname, phone, flat_no, wing, date, amount, payment_mode]
+      [name, surname, phone, flat_no, wing, date, amount, payment_mode],
     );
     const member = insertResult.rows[0];
 
     const receiptNo = generateReceiptNo(member.id);
-    await pool.query("UPDATE members SET receipt_no = $1 WHERE id = $2", [receiptNo, member.id]);
+    await pool.query("UPDATE members SET receipt_no = $1 WHERE id = $2", [
+      receiptNo,
+      member.id,
+    ]);
     member.receipt_no = receiptNo;
 
     await generateReceiptPDF(member);
@@ -79,16 +100,18 @@ router.get("/receipt/:receiptNo", async (req, res) => {
 
 // GET /api/members/export/pdf?wing=A -> export the full member list (or a wing) as one PDF
 router.get("/export/pdf", requireAuth, async (req, res) => {
-  const { wing } = req.query;
+  const { wing, generatedAt } = req.query;
   try {
     let result;
     if (wing && ["A", "B", "C"].includes(wing)) {
       result = await pool.query(
         "SELECT * FROM members WHERE wing = $1 ORDER BY created_at ASC, id ASC",
-        [wing]
+        [wing],
       );
     } else {
-      result = await pool.query("SELECT * FROM members ORDER BY created_at ASC, id ASC");
+      result = await pool.query(
+        "SELECT * FROM members ORDER BY created_at ASC, id ASC",
+      );
     }
 
     const rows = result.rows.map((m) => ({
@@ -97,13 +120,18 @@ router.get("/export/pdf", requireAuth, async (req, res) => {
       phone: m.phone,
       flat_no: m.flat_no,
       wing: m.wing,
-      contribution_date: new Date(m.contribution_date).toLocaleDateString("en-IN"),
+      contribution_date: new Date(m.contribution_date).toLocaleDateString(
+        "en-IN",
+      ),
       amount: `Rs. ${Number(m.amount).toFixed(2)}`,
       payment_mode: m.payment_mode,
     }));
 
     streamTablePDF(res, {
-      title: wing && wing !== "All" ? `Member Details — Wing ${wing}` : "All Member Details",
+      title:
+        wing && wing !== "All"
+          ? `Member Details — Wing ${wing}`
+          : "All Member Details",
       subtitle: "Member Contribution Report",
       filename: `members${wing && wing !== "All" ? `-wing-${wing}` : ""}.pdf`,
       columns: [
@@ -117,6 +145,7 @@ router.get("/export/pdf", requireAuth, async (req, res) => {
         { key: "payment_mode", label: "Mode", width: 0.9 },
       ],
       rows,
+      generatedAt,
     });
   } catch (err) {
     console.error(err);

@@ -16,7 +16,10 @@ const LINE = "#E5E7EB";
  * columns: [{ key, label, width }]
  * rows: array of plain objects
  */
-export function streamTablePDF(res, { title, subtitle, columns, rows, filename }) {
+export function streamTablePDF(
+  res,
+  { title, subtitle, columns, rows, filename, generatedAt },
+) {
   const doc = new PDFDocument({ size: "A4", margin: 40 });
 
   res.setHeader("Content-Type", "application/pdf");
@@ -33,8 +36,15 @@ export function streamTablePDF(res, { title, subtitle, columns, rows, filename }
       doc.image(LOGO_PATH, 38, 20, { width: 40, height: 40 });
       textX = 90;
     }
-    doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(17).text("Bal Ganesh Mitra Mandal", textX, 22);
-    doc.font("Helvetica").fontSize(10).text(subtitle || title, textX, 46);
+    doc
+      .fillColor("#FFFFFF")
+      .font("Helvetica-Bold")
+      .fontSize(17)
+      .text("Bal Ganesh Mitra Mandal", textX, 22);
+    doc
+      .font("Helvetica")
+      .fontSize(10)
+      .text(subtitle || title, textX, 46);
     doc.fillColor(DARK);
   };
 
@@ -46,7 +56,11 @@ export function streamTablePDF(res, { title, subtitle, columns, rows, filename }
     .font("Helvetica")
     .fontSize(9)
     .fillColor(GRAY)
-    .text(`Generated on ${new Date().toLocaleString("en-IN")}`, 40, 118);
+    .text(
+      `Generated on ${generatedAt || new Date().toLocaleString("en-IN")}`,
+      40,
+      118,
+    );
 
   const tableTop = 145;
   const tableLeft = 40;
@@ -61,7 +75,9 @@ export function streamTablePDF(res, { title, subtitle, columns, rows, filename }
     let x = tableLeft;
     doc.font("Helvetica-Bold").fontSize(9).fillColor(ORANGE);
     columns.forEach((col, i) => {
-      doc.text(col.label.toUpperCase(), x + 8, y + 8, { width: colWidths[i] - 12 });
+      doc.text(col.label.toUpperCase(), x + 8, y + 8, {
+        width: colWidths[i] - 12,
+      });
       x += colWidths[i];
     });
   };
@@ -88,17 +104,31 @@ export function streamTablePDF(res, { title, subtitle, columns, rows, filename }
 
     let x = tableLeft;
     columns.forEach((col, i) => {
-      const value = row[col.key] === null || row[col.key] === undefined ? "-" : String(row[col.key]);
-      doc.text(value, x + 8, y + 7, { width: colWidths[i] - 12, ellipsis: true });
+      const value =
+        row[col.key] === null || row[col.key] === undefined
+          ? "-"
+          : String(row[col.key]);
+      doc.text(value, x + 8, y + 7, {
+        width: colWidths[i] - 12,
+        ellipsis: true,
+      });
       x += colWidths[i];
     });
 
-    doc.moveTo(tableLeft, y + rowHeight).lineTo(tableLeft + tableWidth, y + rowHeight).strokeColor(LINE).stroke();
+    doc
+      .moveTo(tableLeft, y + rowHeight)
+      .lineTo(tableLeft + tableWidth, y + rowHeight)
+      .strokeColor(LINE)
+      .stroke();
     y += rowHeight;
   });
 
   if (rows.length === 0) {
-    doc.font("Helvetica").fontSize(10).fillColor(GRAY).text("No records found.", tableLeft, y + 10);
+    doc
+      .font("Helvetica")
+      .fontSize(10)
+      .fillColor(GRAY)
+      .text("No records found.", tableLeft, y + 10);
   }
 
   doc.end();
