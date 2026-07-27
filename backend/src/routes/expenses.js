@@ -39,7 +39,7 @@ router.post("/", requireAuth, async (req, res) => {
 // GET /api/expenses/export/pdf -> export the full expenses list as one PDF
 router.get("/export/pdf", requireAuth, async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM expenses ORDER BY created_at DESC");
+    const result = await pool.query("SELECT * FROM expenses ORDER BY created_at ASC, id ASC");
 
     const rows = result.rows.map((e) => ({
       expense_name: e.expense_name,

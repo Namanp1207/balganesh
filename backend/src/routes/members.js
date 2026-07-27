@@ -84,11 +84,11 @@ router.get("/export/pdf", requireAuth, async (req, res) => {
     let result;
     if (wing && ["A", "B", "C"].includes(wing)) {
       result = await pool.query(
-        "SELECT * FROM members WHERE wing = $1 ORDER BY created_at DESC",
+        "SELECT * FROM members WHERE wing = $1 ORDER BY created_at ASC, id ASC",
         [wing]
       );
     } else {
-      result = await pool.query("SELECT * FROM members ORDER BY created_at DESC");
+      result = await pool.query("SELECT * FROM members ORDER BY created_at ASC, id ASC");
     }
 
     const rows = result.rows.map((m) => ({
