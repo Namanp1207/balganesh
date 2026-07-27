@@ -1,12 +1,7 @@
 import { Router } from "express";
-import fs from "fs";
 import { pool } from "../db.js";
 import { requireAuth } from "../middleware/auth.js";
-import {
-  generateReceiptNo,
-  generateReceiptPDF,
-  receiptFilePath,
-} from "../utils/pdf.js";
+import { generateReceiptNo, streamReceiptPDF } from "../utils/pdf.js";
 import { streamTablePDF } from "../utils/tablePdf.js";
 
 const router = Router();
@@ -89,13 +84,19 @@ router.post("/", requireAuth, async (req, res) => {
 // GET /api/members/receipt/:receiptNo -> download/view a single member's receipt PDF
 router.get("/receipt/:receiptNo", async (req, res) => {
   const { receiptNo } = req.params;
-  const filePath = receiptFilePath(receiptNo);
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: "Receipt not found" });
+  try {
+    const result = await pool.query(
+      "SELECT * FROM members WHERE receipt_no = $1",
+      [receiptNo],
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Receipt not found" });
+    }
+    streamReceiptPDF(res, result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to generate receipt" });
   }
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", `inline; filename="${receiptNo}.pdf"`);
-  fs.createReadStream(filePath).pipe(res);
 });
 
 // GET /api/members/export/pdf?wing=A -> export the full member list (or a wing) as one PDF
