@@ -28,10 +28,14 @@ router.get("/", requireAuth, async (req, res) => {
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .slice(0, 6);
 
+    const totalAmount = Number(memberTotal.rows[0].total);
+    const totalExpenses = Number(expenseTotal.rows[0].total);
+
     res.json({
       totalMembers: memberCount.rows[0].count,
-      totalAmount: Number(memberTotal.rows[0].total),
-      totalExpenses: Number(expenseTotal.rows[0].total),
+      totalAmount,
+      totalExpenses,
+      balance: totalAmount - totalExpenses,
       recentlyAdded,
     });
   } catch (err) {
