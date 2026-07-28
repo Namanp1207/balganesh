@@ -19,7 +19,9 @@ export default function AddMember() {
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const { showToast } = useToast();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -29,11 +31,15 @@ export default function AddMember() {
     setLoading(true);
     try {
       const res = await api.post("/members", form);
-      const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+      const apiBase =
+        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
       const baseOrigin = apiBase.replace(/\/api\/?$/, "");
       setReceiptUrl(`${baseOrigin}${res.data.receiptUrl}`);
 
-      showToast("success", "Member added successfully. Receipt PDF generated.");
+      const whatsappNote = res.data.whatsapp?.sent
+        ? "Receipt sent to their WhatsApp."
+        : "Receipt generated (WhatsApp not sent — check Twilio configuration).";
+      showToast("success", `Member added successfully. ${whatsappNote}`);
       setForm(initialForm);
     } catch (err: any) {
       showToast("error", err.response?.data?.error || "Failed to add member");
@@ -49,19 +55,40 @@ export default function AddMember() {
         <div className="form-grid">
           <div className="form-group">
             <label>Name</label>
-            <input name="name" value={form.name} onChange={handleChange} required />
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="form-group">
             <label>Surname</label>
-            <input name="surname" value={form.surname} onChange={handleChange} required />
+            <input
+              name="surname"
+              value={form.surname}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="form-group">
             <label>Phone No.</label>
-            <input name="phone" value={form.phone} onChange={handleChange} placeholder="9876543210" required />
+            <input
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              placeholder="9876543210"
+              required
+            />
           </div>
           <div className="form-group">
             <label>Flat No.</label>
-            <input name="flat_no" value={form.flat_no} onChange={handleChange} required />
+            <input
+              name="flat_no"
+              value={form.flat_no}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="form-group">
             <label>Wing</label>
@@ -69,33 +96,62 @@ export default function AddMember() {
               <option value="A">A</option>
               <option value="B">B</option>
               <option value="C">C</option>
+              <option value="Others">Others</option>
             </select>
           </div>
           <div className="form-group">
             <label>Date</label>
-            <input type="date" name="date" value={form.date} onChange={handleChange} required />
+            <input
+              type="date"
+              name="date"
+              value={form.date}
+              onChange={handleChange}
+              required
+            />
           </div>
           <div className="form-group">
             <label>Amount</label>
-            <input type="number" name="amount" value={form.amount} onChange={handleChange} min="0" step="0.01" required />
+            <input
+              type="number"
+              name="amount"
+              value={form.amount}
+              onChange={handleChange}
+              min="0"
+              step="0.01"
+              required
+            />
           </div>
           <div className="form-group">
             <label>Payment Mode</label>
-            <select name="payment_mode" value={form.payment_mode} onChange={handleChange}>
+            <select
+              name="payment_mode"
+              value={form.payment_mode}
+              onChange={handleChange}
+            >
               <option value="Cash">Cash</option>
               <option value="Online">Online (Google Pay)</option>
             </select>
           </div>
         </div>
 
-        <button className="btn-primary" type="submit" disabled={loading} style={{ marginTop: 8 }}>
+        <button
+          className="btn-primary"
+          type="submit"
+          disabled={loading}
+          style={{ marginTop: 8 }}
+        >
           {loading ? "Submitting..." : "Add Member"}
         </button>
       </form>
 
       {receiptUrl && (
         <div style={{ marginTop: 12 }}>
-          <a className="download-link" href={receiptUrl} target="_blank" rel="noreferrer">
+          <a
+            className="download-link"
+            href={receiptUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
             📄 View / Download Receipt PDF
           </a>
         </div>

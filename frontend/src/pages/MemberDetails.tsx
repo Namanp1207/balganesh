@@ -15,7 +15,7 @@ interface Member {
   receipt_no: string;
 }
 
-const WINGS = ["All", "A", "B", "C"];
+const WINGS = ["All", "A", "B", "C", "Others"];
 
 export default function MemberDetails() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -94,7 +94,7 @@ export default function MemberDetails() {
             className={`filter-chip${wing === w ? " active" : ""}`}
             onClick={() => setWing(w)}
           >
-            {w === "All" ? "All Wings" : `Wing ${w}`}
+            {w === "All" ? "All Wings" : w === "Others" ? "Others" : `Wing ${w}`}
           </button>
         ))}
       </div>

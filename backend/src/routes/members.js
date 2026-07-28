@@ -3,15 +3,18 @@ import { pool } from "../db.js";
 import { requireAuth } from "../middleware/auth.js";
 import { generateReceiptNo, streamReceiptPDF } from "../utils/pdf.js";
 import { streamTablePDF } from "../utils/tablePdf.js";
+import { sendReceiptOnWhatsApp } from "../utils/whatsapp.js";
 
 const router = Router();
+
+const VALID_WINGS = ["A", "B", "C", "Others"];
 
 // GET /api/members?wing=A  -> list members, optionally filtered by wing
 router.get("/", requireAuth, async (req, res) => {
   const { wing } = req.query;
   try {
     let result;
-    if (wing && ["A", "B", "C"].includes(wing)) {
+    if (wing && VALID_WINGS.includes(wing)) {
       result = await pool.query(
         "SELECT * FROM members WHERE wing = $1 ORDER BY created_at DESC",
         [wing],
@@ -45,8 +48,8 @@ router.post("/", requireAuth, async (req, res) => {
   ) {
     return res.status(400).json({ error: "All fields are required" });
   }
-  if (!["A", "B", "C"].includes(wing)) {
-    return res.status(400).json({ error: "Wing must be A, B or C" });
+  if (!VALID_WINGS.includes(wing)) {
+    return res.status(400).json({ error: "Wing must be A, B, C or Others" });
   }
   if (!["Cash", "Online"].includes(payment_mode)) {
     return res
@@ -69,11 +72,16 @@ router.post("/", requireAuth, async (req, res) => {
     ]);
     member.receipt_no = receiptNo;
 
-    await generateReceiptPDF(member);
+    const whatsappResult = await sendReceiptOnWhatsApp({
+      phone: member.phone,
+      receiptNo,
+      memberName: `${member.name} ${member.surname}`,
+    });
 
     res.status(201).json({
       member,
       receiptUrl: `/api/members/receipt/${receiptNo}`,
+      whatsapp: whatsappResult,
     });
   } catch (err) {
     console.error(err);
@@ -104,14 +112,14 @@ router.get("/export/pdf", requireAuth, async (req, res) => {
   const { wing, generatedAt } = req.query;
   try {
     let result;
-    if (wing && ["A", "B", "C"].includes(wing)) {
+    if (wing && VALID_WINGS.includes(wing)) {
       result = await pool.query(
-        "SELECT * FROM members WHERE wing = $1 ORDER BY created_at ASC, id ASC",
+        "SELECT * FROM members WHERE wing = $1 ORDER BY contribution_date ASC, id ASC",
         [wing],
       );
     } else {
       result = await pool.query(
-        "SELECT * FROM members ORDER BY created_at ASC, id ASC",
+        "SELECT * FROM members ORDER BY contribution_date ASC, id ASC",
       );
     }
 
