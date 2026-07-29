@@ -38,7 +38,8 @@ const LINE = "#F0D9CC";
 const ORG_NAME_1 = process.env.ORG_NAME_LINE_1 || "BAL GANESH";
 const ORG_NAME_2 = process.env.ORG_NAME_LINE_2 || "MITRA MANDAL";
 const ORG_TAGLINE = process.env.ORG_TAGLINE || "Serving Society with Devotion";
-const ORG_ADDRESS = process.env.ORG_ADDRESS || "Prithvi Residency, Anjurpata Bhiwandi - 421308";
+const ORG_ADDRESS =
+  process.env.ORG_ADDRESS || "Prithvi Residency, Anjurpata Bhiwandi - 421308";
 const ORG_PHONE = process.env.ORG_PHONE || "";
 // Leave ORG_ESTD_YEAR unset to omit the "ESTD." ribbon entirely.
 const ORG_ESTD_YEAR = process.env.ORG_ESTD_YEAR || "";
@@ -526,20 +527,32 @@ export function streamReceiptPDF(res, member) {
       .fontSize(9)
       .fillColor("#FFFFFF")
       .text(title, textX, footerY + 12);
-    doc
-      .font(F.regular)
-      .fontSize(8.5)
-      .fillColor("#FFFFFF")
-      .text(lines.filter(Boolean).join("\n"), textX, footerY + 26, {
-        width: colW - iconSize - 30,
-      });
+    if (title === "FOLLOW US") {
+      doc
+        .font(F.regular)
+        .fontSize(8.5)
+        .fillColor("#FFFFFF")
+        .text(lines[0], textX, footerY + 26, {
+          width: colW - iconSize - 30,
+          link: "https://www.instagram.com/shri_bal_ganesh_mandal?igsh=MXVieW40djd3MGNwMQ==",
+          underline: true,
+        });
+    } else {
+      doc
+        .font(F.regular)
+        .fontSize(8.5)
+        .fillColor("#FFFFFF")
+        .text(lines.filter(Boolean).join("\n"), textX, footerY + 26, {
+          width: colW - iconSize - 30,
+        });
+    }
   }
   footerCol(0, ICONS.pin, "ADDRESS", [
     `${ORG_NAME_1} ${ORG_NAME_2}`,
     ORG_ADDRESS,
   ]);
   footerCol(1, ICONS.phoneWhite, "CONTACT", [ORG_PHONE]);
-  footerCol(2, ICONS.instagram, "FOLLOW US", ["shri_bal_ganesh_mandl"]);
+  footerCol(2, ICONS.instagram, "FOLLOW US", ["Balganeshmandal"]);
 
   // ---------- Bottom Devanagari line ----------
   if (hasDevFont) {
