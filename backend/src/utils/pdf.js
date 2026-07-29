@@ -31,7 +31,7 @@ const ORANGE = "#F4511E";
 const ORANGE_LIGHT = "#FFF3EC";
 const DARK = "#1A1A1A";
 const BLACK = "#000";
-const LINE = "#F0D9CC";
+const LINE = "#e36e2a";
 
 // Organization details shown on the receipt — override any of these via
 // environment variables without touching this file.
@@ -40,7 +40,8 @@ const ORG_NAME_2 = process.env.ORG_NAME_LINE_2 || "MITRA MANDAL";
 const ORG_TAGLINE = process.env.ORG_TAGLINE || "Serving Society with Devotion";
 const ORG_ADDRESS =
   process.env.ORG_ADDRESS || "Prithvi Residency, Anjurpata Bhiwandi - 421308";
-const ORG_PHONE = process.env.ORG_PHONE || "";
+const ORG_PHONE_1 = process.env.ORG_PHONE_1 || "+91 9284747180";
+const ORG_PHONE_2 = process.env.ORG_PHONE_2 || "+91 8788908979";
 // Leave ORG_ESTD_YEAR unset to omit the "ESTD." ribbon entirely.
 const ORG_ESTD_YEAR = process.env.ORG_ESTD_YEAR || "";
 
@@ -144,7 +145,7 @@ export function streamReceiptPDF(res, member) {
 
   const PAGE_W = doc.page.width;
   const PAGE_H = doc.page.height;
-  const M = 28;
+  const M = 18;
   const IM = 32;
 
   // ---------- Outer decorative border ----------
@@ -154,7 +155,7 @@ export function streamReceiptPDF(res, member) {
     .strokeColor(ORANGE)
     .stroke();
   doc
-    .roundedRect(M + 4, M + 4, PAGE_W - (M + 4) * 2, PAGE_H - (M + 4) * 2, 4)
+    .roundedRect(M + 6, M + 6, PAGE_W - (M + 6) * 2, PAGE_H - (M + 6) * 2, 4)
     .lineWidth(0.75)
     .strokeColor(ORANGE)
     .stroke();
@@ -191,31 +192,45 @@ export function streamReceiptPDF(res, member) {
 
   // ---------- ESTD ribbon ----------
   if (ORG_ESTD_YEAR) {
-    const ribbonX = PAGE_W - M - 70;
-    const ribbonW = 56;
-    const ribbonTop = 40;
-    const ribbonBodyH = 70;
+    const ribbonW = 62;
+    const ribbonH = 84;
+    const ribbonX = PAGE_W - M - ribbonW - 10;
+    const ribbonY = M;
+    const gap = 3;
     doc
-      .moveTo(ribbonX, ribbonTop)
-      .lineTo(ribbonX + ribbonW, ribbonTop)
-      .lineTo(ribbonX + ribbonW, ribbonTop + ribbonBodyH)
-      .lineTo(ribbonX + ribbonW / 2, ribbonTop + ribbonBodyH - 14)
-      .lineTo(ribbonX, ribbonTop + ribbonBodyH)
+      .save()
+      .lineWidth(5) // thinner line
+      .strokeColor(LINE)
+      .moveTo(ribbonX + gap, ribbonY + gap)
+      .lineTo(ribbonX + ribbonW - gap, ribbonY + gap)
+      .lineTo(ribbonX + ribbonW - gap, ribbonY + ribbonH - 16)
+      .lineTo(ribbonX + ribbonW / 2, ribbonY + ribbonH + 2)
+      .lineTo(ribbonX + gap, ribbonY + ribbonH - 16)
+      .closePath()
+      .stroke()
+      .restore();
+    doc
+      .moveTo(ribbonX + 2, ribbonY + 2)
+      .lineTo(ribbonX + ribbonW - 2, ribbonY + 2)
+      .lineTo(ribbonX + ribbonW - 2, ribbonY + ribbonH - 16)
+      .lineTo(ribbonX + ribbonW / 2, ribbonY + ribbonH + 2)
+      .lineTo(ribbonX + 2, ribbonY + ribbonH - 16)
       .closePath()
       .fill(ORANGE);
     doc
       .font(F.bold)
-      .fontSize(9)
+      .fontSize(11)
       .fillColor("#FFFFFF")
-      .text("ESTD.", ribbonX, ribbonTop + 16, {
+      .text("ESTD.", ribbonX, ribbonY + 20, {
         width: ribbonW,
         align: "center",
       });
+
     doc
       .font(F.bold)
-      .fontSize(13)
+      .fontSize(18)
       .fillColor("#FFFFFF")
-      .text(ORG_ESTD_YEAR, ribbonX, ribbonTop + 30, {
+      .text(ORG_ESTD_YEAR, ribbonX, ribbonY + 38, {
         width: ribbonW,
         align: "center",
       });
@@ -344,23 +359,30 @@ export function streamReceiptPDF(res, member) {
   const cardTopY = y;
 
   function drawCardHeader(x, label, iconPath) {
-    doc.circle(x + 16, cardTopY + 16, 14).fill(ORANGE);
+    const headerY = cardTopY + 18; // was around +9
+
+    doc.circle(x + 22, headerY + 10, 14).fill(ORANGE);
+
     if (hasIcon(iconPath)) {
-      doc.image(iconPath, x + 9, cardTopY + 9, { width: 14, height: 14 });
+      doc.image(iconPath, x + 15, headerY + 3, {
+        width: 14,
+        height: 14,
+      });
     }
+
     doc
       .font(F.bold)
       .fontSize(13)
       .fillColor(ORANGE)
-      .text(label, x + 38, cardTopY + 9);
+      .text(label, x + 44, headerY + 4);
   }
   drawCardHeader(card1X, "DONOR DETAILS", ICONS.user);
   drawCardHeader(card2X, "DONATION DETAILS", ICONS.gift);
 
-  const rowsStartY = cardTopY + 44;
+  const rowsStartY = cardTopY + 58;
   const rowGap = 8;
   const iconBox = 13;
-  const labelColW = 62;
+  const labelColW = 75;
   const valueXOffset = iconBox + 8 + labelColW + 6;
   const valueWidth = cardW - valueXOffset - 16;
 
@@ -425,7 +447,7 @@ export function streamReceiptPDF(res, member) {
         .font(F.semibold)
         .fontSize(10)
         .fillColor(DARK)
-        .text(label, x + 16 + iconBox + 8, ry + 1, { width: labelColW });
+        .text(`${label} :`, x + 16 + iconBox + 8, ry + 1, { width: labelColW });
       if (iconKind === "rupee" && hasDevFont) {
         doc
           .font(devFont)
@@ -462,20 +484,37 @@ export function streamReceiptPDF(res, member) {
   y = cardTopY + cardH + 24;
 
   // ---------- Total amount bar ----------
+  //
   const barH = 52;
-  doc.roundedRect(IM, y, PAGE_W - IM * 2, barH, 8).fill(ORANGE_LIGHT);
+  const barX = IM;
+  const barW = PAGE_W - IM * 2;
+
+  // Background
+  doc.roundedRect(barX, y, barW, barH, 8).fill(ORANGE_LIGHT);
+
+  // Border
+  doc
+    .roundedRect(barX, y, barW, barH, 8)
+    .lineWidth(1.5)
+    .strokeColor(ORANGE)
+    .stroke();
+
+  // Rupee circle
   doc.circle(IM + 26, y + barH / 2, 15).fill(ORANGE);
+
   if (hasIcon(ICONS.rupeeWhite)) {
     doc.image(ICONS.rupeeWhite, IM + 26 - 8, y + barH / 2 - 8, {
       width: 16,
       height: 16,
     });
   }
+
   doc
     .font(F.bold)
     .fontSize(12)
     .fillColor(DARK)
     .text("TOTAL AMOUNT RECEIVED", IM + 52, y + barH / 2 - 6);
+
   doc
     .font(hasDevFont ? devFont : F.bold)
     .fontSize(20)
@@ -508,12 +547,15 @@ export function streamReceiptPDF(res, member) {
 
   // ---------- Footer bar ----------
   const footerH = 65;
+  const innerMargin = M + 6;
   const footerY = PAGE_H - M - footerH - 40;
-  doc.rect(M, footerY, PAGE_W - M * 2, footerH).fill(ORANGE);
+  doc
+    .rect(innerMargin, footerY, PAGE_W - innerMargin * 2, footerH)
+    .fill(ORANGE);
 
-  const colW = (PAGE_W - M * 2) / 3;
+  const colW = (PAGE_W - innerMargin * 2) / 3;
   function footerCol(i, iconPath, title, lines) {
-    const x = M + colW * i + 20;
+    const x = innerMargin + colW * i + 20;
     const iconSize = 16;
     if (hasIcon(iconPath)) {
       doc.image(iconPath, x, footerY + 13, {
@@ -551,7 +593,7 @@ export function streamReceiptPDF(res, member) {
     `${ORG_NAME_1} ${ORG_NAME_2}`,
     ORG_ADDRESS,
   ]);
-  footerCol(1, ICONS.phoneWhite, "CONTACT", [ORG_PHONE]);
+  footerCol(1, ICONS.phoneWhite, "CONTACT", [ORG_PHONE_1, ORG_PHONE_2]);
   footerCol(2, ICONS.instagram, "FOLLOW US", ["Balganeshmandal"]);
 
   // ---------- Bottom Devanagari line ----------
