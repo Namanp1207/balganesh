@@ -26,7 +26,7 @@ router.get("/", requireAuth, async (req, res) => {
 
     const recentlyAdded = [...recentMembers.rows, ...recentExpenses.rows]
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, 6);
+      .slice(0, 2);
 
     const totalAmount = Number(memberTotal.rows[0].total);
     const totalExpenses = Number(expenseTotal.rows[0].total);
