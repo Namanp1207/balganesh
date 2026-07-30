@@ -94,7 +94,11 @@ export default function MemberDetails() {
             className={`filter-chip${wing === w ? " active" : ""}`}
             onClick={() => setWing(w)}
           >
-            {w === "All" ? "All Wings" : w === "Others" ? "Others" : `Wing ${w}`}
+            {w === "All"
+              ? "All Wings"
+              : w === "Others"
+                ? "Others"
+                : `Wing ${w}`}
           </button>
         ))}
       </div>

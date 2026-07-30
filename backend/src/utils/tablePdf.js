@@ -4,7 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const LOGO_PATH = path.join(__dirname, "..", "assets", "ganesh-icon.png");
+const LOGO_PATH = path.join(__dirname, "..", "assets", "ganesh-circular.png");
 
 const ORANGE = "#F4511E";
 const DARK = "#1A1A1A";
@@ -31,9 +31,9 @@ export function streamTablePDF(
     let textX = 40;
     if (fs.existsSync(LOGO_PATH)) {
       doc.save();
-      doc.circle(58, 40, 22).fill("#FFFFFF");
+      doc.circle(58, 40, 28).fill("#FFFFFF");
       doc.restore();
-      doc.image(LOGO_PATH, 38, 20, { width: 40, height: 40 });
+      doc.image(LOGO_PATH, 38, 10, { width: 40, height: 60 });
       textX = 90;
     }
     doc

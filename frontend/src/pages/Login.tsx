@@ -2,7 +2,7 @@ import { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import ganeshIcon from "../assets/ganesh-icon.svg";
+import ganeshIcon from "../assets/ganesh-circular.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -29,7 +29,7 @@ export default function Login() {
     <div className="login-page">
       <div className="login-card">
         <div className="login-logo">
-          <img src={ganeshIcon} alt="Bal Ganesh Mitra Mandal" className="brand-logo brand-logo-lg" />
+          <img src={ganeshIcon} alt="Bal Ganesh Mitra Mandal" className="login-brand-logo" />
           <h1>Bal Ganesh Mitra Mandal</h1>
         </div>
         <p className="subtitle">Sign in to manage members &amp; expenses</p>

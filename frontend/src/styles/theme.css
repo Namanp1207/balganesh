@@ -65,6 +65,16 @@ a {
   margin-bottom: 8px;
 }
 
+.login-brand-logo {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--orange-light);
+  padding: 0px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .login-logo .icon-badge {
   width: 40px;
   height: 40px;
@@ -243,11 +253,11 @@ a {
 }
 
 .brand-logo {
-  width: 36px;
-  height: 36px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background: var(--orange-light);
-  padding: 3px;
+  padding: 0px;
   object-fit: contain;
   flex-shrink: 0;
 }

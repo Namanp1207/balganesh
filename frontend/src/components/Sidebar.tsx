@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useSidebar } from "../context/SidebarContext";
-import ganeshIcon from "../assets/ganesh-icon.svg";
+import ganeshIcon from "../assets/ganesh-circular.png";
 
 const links = [
   { to: "/", label: "Dashboard", icon: "📊", end: true },
