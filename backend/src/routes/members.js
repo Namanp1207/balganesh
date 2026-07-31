@@ -3,8 +3,7 @@ import { pool } from "../db.js";
 import { requireAuth } from "../middleware/auth.js";
 import { generateReceiptNo, streamReceiptPDF } from "../utils/pdf.js";
 import { streamTablePDF } from "../utils/tablePdf.js";
-// import { sendReceiptOnWhatsApp } from "../utils/whatsapp.js";
-import { sendToPabbly } from "../utils/pabbly.js";
+import { sendReceiptOnWhatsApp } from "../utils/whatsapp.js";
 
 const router = Router();
 
@@ -73,15 +72,10 @@ router.post("/", requireAuth, async (req, res) => {
     ]);
     member.receipt_no = receiptNo;
 
-    // const whatsappResult = await sendReceiptOnWhatsApp({
-    //   phone: member.phone,
-    //   receiptNo,
-    //   memberName: `${member.name} ${member.surname}`,
-    // });
-    await sendToPabbly({
-      name: `${member.name} ${member.surname}`,
+    const whatsappResult = await sendReceiptOnWhatsApp({
       phone: member.phone,
-      receipt_url: `https://balganesh-backend.vercel.app`,
+      receiptNo,
+      memberName: `${member.name} ${member.surname}`,
     });
 
     res.status(201).json({
