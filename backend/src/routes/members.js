@@ -81,7 +81,7 @@ router.post("/", requireAuth, async (req, res) => {
     await sendToPabbly({
       name: `${member.name} ${member.surname}`,
       phone: member.phone,
-      receipt_url: `https://balganesh-backend.vercel.app`,
+      receipt_url: `https://balganesh-backend.vercel.app/api/members/receipt/${member.receipt_no}`,
     });
 
     res.status(201).json({
