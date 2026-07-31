@@ -36,15 +36,10 @@ export default function AddMember() {
       const baseOrigin = apiBase.replace(/\/api\/?$/, "");
       setReceiptUrl(`${baseOrigin}${res.data.receiptUrl}`);
 
-      // const whatsappNote = res.data.whatsapp?.sent
-      //   ? "Receipt sent to their WhatsApp."
-      //   : "Receipt generated (WhatsApp not sent — check Twilio configuration).";
-      // showToast("success", `Member added successfully. ${whatsappNote}`);
-      showToast(
-        "success",
-        "Member added successfully. Receipt generated and sent for WhatsApp processing."
-      );
-
+      const whatsappNote = res.data.whatsapp?.sent
+        ? "Receipt sent to their WhatsApp."
+        : "Receipt generated (WhatsApp not sent — check Twilio configuration).";
+      showToast("success", `Member added successfully. ${whatsappNote}`);
       setForm(initialForm);
     } catch (err: any) {
       showToast("error", err.response?.data?.error || "Failed to add member");
