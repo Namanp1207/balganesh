@@ -72,11 +72,22 @@ router.post("/", requireAuth, async (req, res) => {
     ]);
     member.receipt_no = receiptNo;
 
-    const whatsappResult = await sendReceiptOnWhatsApp({
-      phone: member.phone,
-      receiptNo,
-      memberName: `${member.name} ${member.surname}`,
-    });
+    let whatsappResult;
+    try {
+      whatsappResult = await sendReceiptOnWhatsApp({
+        phone: member.phone,
+        receiptNo,
+        memberName: `${member.name} ${member.surname}`,
+      });
+    } catch (whatsappErr) {
+      // sendReceiptOnWhatsApp already catches its own errors internally and
+      // returns { sent: false, reason }, but this extra guard means a member
+      // is NEVER reported as "failed to add" just because the WhatsApp step
+      // had a problem — the member is already safely saved in the database
+      // by this point.
+      console.error("Unexpected WhatsApp error:", whatsappErr);
+      whatsappResult = { sent: false, reason: "Unexpected WhatsApp error" };
+    }
 
     res.status(201).json({
       member,
