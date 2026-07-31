@@ -87,7 +87,7 @@ router.post("/", requireAuth, async (req, res) => {
     res.status(201).json({
       member,
       receiptUrl: `/api/members/receipt/${receiptNo}`,
-      whatsapp: whatsappResult,
+      // whatsapp: whatsappResult,
     });
   } catch (err) {
     console.error(err);
