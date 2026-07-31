@@ -81,13 +81,13 @@ router.post("/", requireAuth, async (req, res) => {
     await sendToPabbly({
       name: `${member.name} ${member.surname}`,
       phone: member.phone,
-      receipt_url: `https://balganesh-backend.vercel.app/api/members/receipt/${member.receipt_no}`,
+      receipt_url: `https://balganesh-backend.vercel.app`,
     });
 
     res.status(201).json({
       member,
       receiptUrl: `/api/members/receipt/${receiptNo}`,
-      // whatsapp: whatsappResult,
+      whatsapp: whatsappResult,
     });
   } catch (err) {
     console.error(err);
