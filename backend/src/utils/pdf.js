@@ -516,8 +516,8 @@ export function streamReceiptPDF(res, member) {
     .text("TOTAL AMOUNT RECEIVED", IM + 52, y + barH / 2 - 6);
 
   doc
-    .font(hasDevFont ? devFont : F.bold)
-    .fontSize(20)
+    .font( F.bold)
+    .fontSize(25)
     .fillColor(ORANGE)
     .text(rupeeAmountStr, IM, y + barH / 2 - 12, {
       width: PAGE_W - IM * 2 - 20,
@@ -594,7 +594,7 @@ export function streamReceiptPDF(res, member) {
     ORG_ADDRESS,
   ]);
   footerCol(1, ICONS.phoneWhite, "CONTACT", [ORG_PHONE_1, ORG_PHONE_2]);
-  footerCol(2, ICONS.instagram, "FOLLOW US", ["Balganeshmandal"]);
+  footerCol(2, ICONS.instagram, "FOLLOW US", ["@Balganeshmandal"]);
 
   // ---------- Bottom Devanagari line ----------
   if (hasDevFont) {
