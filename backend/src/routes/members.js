@@ -17,12 +17,10 @@ router.get("/", requireAuth, async (req, res) => {
     if (wing && VALID_WINGS.includes(wing)) {
       result = await pool.query(
         "SELECT * FROM members WHERE wing = $1 ORDER BY created_at DESC",
-        [wing],
+        [wing]
       );
     } else {
-      result = await pool.query(
-        "SELECT * FROM members ORDER BY created_at DESC",
-      );
+      result = await pool.query("SELECT * FROM members ORDER BY created_at DESC");
     }
     res.json(result.rows);
   } catch (err) {
@@ -33,60 +31,42 @@ router.get("/", requireAuth, async (req, res) => {
 
 // POST /api/members -> add a new member and generate a downloadable PDF receipt
 router.post("/", requireAuth, async (req, res) => {
-  const { name, surname, phone, flat_no, wing, date, amount, payment_mode } =
-    req.body;
+  const { name, surname, phone, flat_no, wing, date, amount, payment_mode } = req.body;
 
-  if (
-    !name ||
-    !surname ||
-    !phone ||
-    !flat_no ||
-    !wing ||
-    !date ||
-    !amount ||
-    !payment_mode
-  ) {
+  if (!name || !surname || !phone || !flat_no || !wing || !date || !amount || !payment_mode) {
     return res.status(400).json({ error: "All fields are required" });
   }
   if (!VALID_WINGS.includes(wing)) {
     return res.status(400).json({ error: "Wing must be A, B, C or Others" });
   }
   if (!["Cash", "Online"].includes(payment_mode)) {
-    return res
-      .status(400)
-      .json({ error: "Payment mode must be Cash or Online" });
+    return res.status(400).json({ error: "Payment mode must be Cash or Online" });
   }
 
   try {
     const insertResult = await pool.query(
       `INSERT INTO members (name, surname, phone, flat_no, wing, contribution_date, amount, payment_mode)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-      [name, surname, phone, flat_no, wing, date, amount, payment_mode],
+      [name, surname, phone, flat_no, wing, date, amount, payment_mode]
     );
     const member = insertResult.rows[0];
 
     const receiptNo = generateReceiptNo(member.id);
-    await pool.query("UPDATE members SET receipt_no = $1 WHERE id = $2", [
-      receiptNo,
-      member.id,
-    ]);
+    await pool.query("UPDATE members SET receipt_no = $1 WHERE id = $2", [receiptNo, member.id]);
     member.receipt_no = receiptNo;
 
-    let whatsappResult;
-    try {
+    // Every receipt gets copied to ONE fixed number (set in Settings), not to the
+    // donor's own phone — the donor's phone on the form is just their contact info.
+    const settingsResult = await pool.query("SELECT whatsapp_notify_number FROM settings WHERE id = 1");
+    const notifyNumber = settingsResult.rows[0]?.whatsapp_notify_number;
+
+    let whatsappResult = { sent: false, reason: "No WhatsApp notify number set in Settings" };
+    if (notifyNumber) {
       whatsappResult = await sendReceiptOnWhatsApp({
-        phone: member.phone,
+        phone: notifyNumber,
         receiptNo,
         memberName: `${member.name} ${member.surname}`,
       });
-    } catch (whatsappErr) {
-      // sendReceiptOnWhatsApp already catches its own errors internally and
-      // returns { sent: false, reason }, but this extra guard means a member
-      // is NEVER reported as "failed to add" just because the WhatsApp step
-      // had a problem — the member is already safely saved in the database
-      // by this point.
-      console.error("Unexpected WhatsApp error:", whatsappErr);
-      whatsappResult = { sent: false, reason: "Unexpected WhatsApp error" };
     }
 
     res.status(201).json({
@@ -100,14 +80,11 @@ router.post("/", requireAuth, async (req, res) => {
   }
 });
 
-// GET /api/members/receipt/:receiptNo -> download/view a single member's receipt PDF
+// GET /api/members/receipt/:receiptNo -> generate and stream a member's receipt PDF on demand
 router.get("/receipt/:receiptNo", async (req, res) => {
   const { receiptNo } = req.params;
   try {
-    const result = await pool.query(
-      "SELECT * FROM members WHERE receipt_no = $1",
-      [receiptNo],
-    );
+    const result = await pool.query("SELECT * FROM members WHERE receipt_no = $1", [receiptNo]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Receipt not found" });
     }
@@ -126,12 +103,10 @@ router.get("/export/pdf", requireAuth, async (req, res) => {
     if (wing && VALID_WINGS.includes(wing)) {
       result = await pool.query(
         "SELECT * FROM members WHERE wing = $1 ORDER BY contribution_date ASC, id ASC",
-        [wing],
+        [wing]
       );
     } else {
-      result = await pool.query(
-        "SELECT * FROM members ORDER BY contribution_date ASC, id ASC",
-      );
+      result = await pool.query("SELECT * FROM members ORDER BY contribution_date ASC, id ASC");
     }
 
     const rows = result.rows.map((m) => ({
@@ -140,18 +115,13 @@ router.get("/export/pdf", requireAuth, async (req, res) => {
       phone: m.phone,
       flat_no: m.flat_no,
       wing: m.wing,
-      contribution_date: new Date(m.contribution_date).toLocaleDateString(
-        "en-IN",
-      ),
+      contribution_date: new Date(m.contribution_date).toLocaleDateString("en-IN"),
       amount: `Rs. ${Number(m.amount).toFixed(2)}`,
       payment_mode: m.payment_mode,
     }));
 
     streamTablePDF(res, {
-      title:
-        wing && wing !== "All"
-          ? `Member Details — Wing ${wing}`
-          : "All Member Details",
+      title: wing && wing !== "All" ? `Member Details — Wing ${wing}` : "All Member Details",
       subtitle: "Member Contribution Report",
       filename: `members${wing && wing !== "All" ? `-wing-${wing}` : ""}.pdf`,
       columns: [

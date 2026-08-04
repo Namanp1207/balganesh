@@ -8,6 +8,7 @@ const links = [
   { to: "/add-expense", label: "Expenses Form", icon: "🧾" },
   { to: "/members", label: "All Member Details", icon: "👥" },
   { to: "/expenses", label: "All Expenses Details", icon: "📁" },
+  { to: "/settings", label: "Settings", icon: "⚙️" },
 ];
 
 export default function Sidebar() {

@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.js";
 import memberRoutes from "./routes/members.js";
 import expenseRoutes from "./routes/expenses.js";
 import dashboardRoutes from "./routes/dashboard.js";
+import settingsRoutes from "./routes/settings.js";
 
 dotenv.config();
 
@@ -77,6 +78,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/members", memberRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/settings", settingsRoutes);
 
 app.use((req, res) => res.status(404).json({ error: "Route not found" }));
 

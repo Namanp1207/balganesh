@@ -10,6 +10,7 @@ import AddMember from "./pages/AddMember";
 import AddExpense from "./pages/AddExpense";
 import MemberDetails from "./pages/MemberDetails";
 import ExpenseDetails from "./pages/ExpenseDetails";
+import Settings from "./pages/Settings";
 
 export default function App() {
   return (
@@ -32,6 +33,7 @@ export default function App() {
                 <Route path="/add-expense" element={<AddExpense />} />
                 <Route path="/members" element={<MemberDetails />} />
                 <Route path="/expenses" element={<ExpenseDetails />} />
+                <Route path="/settings" element={<Settings />} />
               </Route>
             </Route>
 
